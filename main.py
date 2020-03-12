@@ -46,10 +46,38 @@ def intarg(theta, v):
     # dmaxy = dmaxy_ds(s)
     return [ ds_dtheta(theta) ]
 
+def format_svg(s, r, theta):
+    if len(s) == 0:
+        s += "M"
+    else:
+        s += "L"
+    x = r * math.cos(theta)
+    y = r * math.sin(theta)
+    s += f" {x} {y} "
+    return s
+
 sol = integrate.solve_ivp(intarg, (0, 2*math.pi), [0], t_eval=np.linspace(0, 2*math.pi, n+1))
 # print(sol.t)
 pts = np.concatenate(([sol.t], sol.y)).T
+out_u = ""
+u_maxr = 0
+out_v = ""
+v_maxr = 0
 for (theta, s) in pts:
     pt = getPoint(s)
-    # theta_t, s_t, x_t, y_t, u_t, v_t
-    print(theta, s, pt.x, pt.y, u(s), v(s), sep='\t')
+    u_r = u(s)
+    u_maxr = max(u_maxr, u_r)
+    v_r = v(s)
+    v_maxr = max(v_maxr, v_r)
+    print(theta, s, pt.x, pt.y, u_r, v_r, sep='\t')
+    out_u = format_svg(out_u, u_r, theta)
+    out_v = format_svg(out_v, v_r, theta)
+
+def finish_format(path, max_r):
+    return f"<svg viewbox='{-max_r} {-max_r} {2*max_r} {2*max_r}'><path d='{path}'/></svg>"
+
+with open("cam_u.html", "w") as f:
+    f.write(finish_format(out_u, u_maxr))
+
+with open("cam_v.html", "w") as f:
+    f.write(finish_format(out_v, v_maxr))
