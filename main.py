@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from points import points, pdiff
+from points import points, pdiff, Point
 import math
 import numpy as np
 from scipy import integrate
@@ -11,7 +11,7 @@ h_u = 280
 l_v = 300
 x_v = 200
 h_v = 280
-n = 200
+n = 50
 
 def u(s):
     """ y1 """
@@ -46,38 +46,69 @@ def intarg(theta, v):
     # dmaxy = dmaxy_ds(s)
     return [ ds_dtheta(theta) ]
 
-def format_svg(s, r, theta):
-    if len(s) == 0:
-        s += "M"
-    else:
-        s += "L"
-    x = r * math.cos(theta)
-    y = r * math.sin(theta)
-    s += f" {x} {y} "
+sol = integrate.solve_ivp(intarg, (0, 2*math.pi), [0], t_eval=np.linspace(0, 2*math.pi, n+1))
+pts = np.concatenate(([sol.t], sol.y)).T
+
+def desmos_readout():
+    for (theta, s) in pts:
+        pt = getPoint(s)
+        print(theta, s, pt.x, pt.y, u(s), v(s), sep='\t')
+
+def cr(x):
+    return round(x, 2)
+
+# https://medium.com/@francoisromain/smooth-a-svg-path-with-cubic-bezier-curves-e37b49d46c74
+
+def line(a, b):
+    diff = b-a
+    dx, dy = diff.x, diff.y
+
+    return (
+        math.atan2(dy, dx),
+        math.sqrt(dx*dx + dy*dy)
+    )
+
+def control_point(current, prev, next, reverse=False):
+    p = prev if prev else current
+    n = next if next else current
+    smoothing = 0.2
+    line_angle, line_length = line(p, n)
+    angle = line_angle + (math.pi if reverse else 0)
+    length = line_length * smoothing
+    return Point(
+        current.x + math.cos(angle) * length,
+        current.y + math.sin(angle) * length
+    )
+
+def bezier_command(point, i, a):
+    cp_start = control_point(a[i-1], a[i-2], point)
+    cp_end = control_point(point, a[i-1], a[i+1], True)
+    return f"C {cr(cp_start.x)},{cr(cp_start.y)} {cr(cp_end.x)},{cr(cp_end.y)} {cr(point.x)},{cr(point.y)}"
+
+def format_path(points):
+    points = map(lambda tr: Point(tr[1]*math.cos(tr[0]), tr[1]*math.sin(tr[0])), points)
+    points = list(points)
+    for i, point in enumerate(points):
+        if i == 0:
+            s = f"M {cr(point.x)},{cr(point.y)} "
+        else:
+            s += bezier_command(point, i, [*points, None])
     return s
 
-sol = integrate.solve_ivp(intarg, (0, 2*math.pi), [0], t_eval=np.linspace(0, 2*math.pi, n+1))
-# print(sol.t)
-pts = np.concatenate(([sol.t], sol.y)).T
-out_u = ""
-u_maxr = 0
-out_v = ""
-v_maxr = 0
-for (theta, s) in pts:
-    pt = getPoint(s)
-    u_r = u(s)
-    u_maxr = max(u_maxr, u_r)
-    v_r = v(s)
-    v_maxr = max(v_maxr, v_r)
-    print(theta, s, pt.x, pt.y, u_r, v_r, sep='\t')
-    out_u = format_svg(out_u, u_r, theta)
-    out_v = format_svg(out_v, v_r, theta)
+def format_svg(points):
+    max_r = max(r for theta,r in points)
+    return (
+        f"<svg viewbox='{-max_r} {-max_r} {2*max_r} {2*max_r}'>\n"
+        f"  <path d='{format_path(points)}'/>\n"
+        f"  <circle cx=0 cy=0 r=10 fill='white'/>\n"
+        f"</svg>\n"
+    )
 
-def finish_format(path, max_r):
-    return f"<svg viewbox='{-max_r} {-max_r} {2*max_r} {2*max_r}'><path d='{path}'/></svg>"
+def gen_svg(r_func, filename):
+    with open(filename, "w") as f:
+        f.write(format_svg([(theta, r_func(s)) for (theta, s) in pts]))
 
-with open("cam_u.html", "w") as f:
-    f.write(finish_format(out_u, u_maxr))
-
-with open("cam_v.html", "w") as f:
-    f.write(finish_format(out_v, v_maxr))
+gen_svg(u, "cam_u.html")
+gen_svg(u, "cam_u.svg")
+gen_svg(v, "cam_v.html")
+gen_svg(v, "cam_v.svg")

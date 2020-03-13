@@ -9,6 +9,12 @@ class Point:
     def __add__(self, other):
         return Point(self.x+other.x, self.y+other.y)
 
+    def __sub__(self, other):
+        return self+other*(-1)
+
+    def __mag__(self):
+        return (self.x*self.x + self.y*self.y)**0.5
+
 fpts = """0	90.3499984741211	133.95000076293945
 0.005	88.66094970703125	133.9009666442871
 0.01	86.97762298583984	133.75376892089844
