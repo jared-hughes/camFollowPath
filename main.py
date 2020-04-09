@@ -52,7 +52,9 @@ pts = np.concatenate(([sol.t], sol.y)).T
 def desmos_readout():
     for (theta, s) in pts:
         pt = getPoint(s)
-        print(theta, s, pt.x, pt.y, u(s), v(s), sep='\t')
+        print(round(theta, 3), round(s, 3), round(pt.x, 2), round(pt.y, 2), round(u(s), 2), round(v(s), 2), sep='\t')
+
+desmos_readout()
 
 def cr(x):
     return round(x, 2)
@@ -108,7 +110,8 @@ def gen_svg(r_func, filename):
     with open(filename, "w") as f:
         f.write(format_svg([(theta, r_func(s)) for (theta, s) in pts]))
 
-gen_svg(u, "cam_u.html")
-gen_svg(u, "cam_u.svg")
-gen_svg(v, "cam_v.html")
-gen_svg(v, "cam_v.svg")
+if __name__=="__main__":
+    gen_svg(u, "outputs/cam_u.html")
+    gen_svg(u, "outputs/cam_u.svg")
+    gen_svg(v, "outputs/cam_v.html")
+    gen_svg(v, "outputs/cam_v.svg")
