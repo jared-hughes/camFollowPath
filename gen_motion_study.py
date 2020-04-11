@@ -1,33 +1,44 @@
 #!/usr/bin/env python3
-from compute import getPoint, side1, side2, pointer_radius, getThetaS
+from compute import getPoint, side1, side2, pointer_radius, getThetaS, Point
 import numpy as np
 
-def geogebra_declaration(name, value):
+def ggb_def(name, value):
     print(indent+name, "=", ("\n "+indent if separate_names else "") + str(value))
 
-def geogebra_list(name, positions, index):
-    geogebra_declaration(name, "{" + ", ".join([str(pos[index]) for pos in positions]) + "}")
+def ggb_list(items):
+    return "{" + ", ".join(map(str, items)) + "}"
 
-def geogebra_readout(side, n):
+def ggb_list_pos(positions, index):
+    return ggb_list([pos[index] for pos in positions])
+
+def ggb_readout(side, n):
     print("Next Side")
     positions = []
     for (theta, s) in getThetaS(n):
         (r, cam_angle, angle, face_pos) = side.info(s)
         positions.append((round(theta, 3), round(r, 3), round(cam_angle, 3), round(angle, 3), face_pos.rounded(3)))
 
-    geogebra_list("theta", positions, 0)
-    geogebra_list("r1", positions, 1)
-    geogebra_list("cama", positions, 2)
-    geogebra_list("a1", positions, 3)
-    geogebra_list("f1", positions, 4)
-    geogebra_declaration("p", side.p)
-    geogebra_declaration("f", side.f)
-    geogebra_declaration("camxy", side.camxy)
-    geogebra_declaration("rp", pointer_radius)
+    # print out a single list {{theta}, {r1}, {cam_angle}, {angle}, {face_pos}, p, f, camxy, rp, xy of side pivot}
+    ggb_def("l1",
+        ggb_list([
+            ggb_list_pos(positions, 0),
+            ggb_list_pos(positions, 1),
+            ggb_list_pos(positions, 2),
+            ggb_list_pos(positions, 3),
+            ggb_list_pos(positions, 4),
+            side.p,
+            side.f,
+            # still trying to figure out why y must be flipped
+            # maybe there is a y-positive pointing down in some equation
+            Point(side.camxy.x, -side.camxy.y),
+            pointer_radius,
+            side.xy
+        ])
+    )
 
 separate_names = True
 indent = "  "
 
 if __name__=="__main__":
-    geogebra_readout(side1, 50)
-    geogebra_readout(side2, 50)
+    ggb_readout(side1, 50)
+    ggb_readout(side2, 50)
