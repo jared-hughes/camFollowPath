@@ -2,10 +2,6 @@
 from compute import getPoint, side1, side2, pointer_radius, getThetaS
 import numpy as np
 
-separate_names = True
-
-indent = "  "
-
 def geogebra_declaration(name, value):
     print(indent+name, "=", ("\n "+indent if separate_names else "") + str(value))
 
@@ -28,6 +24,9 @@ def geogebra_readout(side, n):
     geogebra_declaration("f", side.f)
     geogebra_declaration("camxy", side.camxy)
     geogebra_declaration("rp", pointer_radius)
+
+separate_names = True
+indent = "  "
 
 if __name__=="__main__":
     geogebra_readout(side1, 50)

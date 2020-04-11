@@ -41,14 +41,6 @@ class Side:
         cam_angle = cam_vector.angle()
         return (r, cam_angle, angle, face_pos)
 
-
-pointer_radius = 8
-""" z Distance from pivot of pointer to projection wall, effectively inverse scale factor """
-projection_distance = 1000
-#            p   f      xy           camxy        z
-side1 = Side(20, 10, Point(5, -10), Point(20, -5), 100)
-side2 = Side(20, -10, Point(-5, -10), Point(-20, -5), 100)
-
 def getPoint(s):
     """ Returns closest (x, y) source point at s """
     s %= 1
@@ -77,3 +69,10 @@ def getThetaS(n=50):
     sol = integrate.solve_ivp(intarg, (0, 2*math.pi), [0], t_eval=np.linspace(0, 2*math.pi, n+1))
     # effectively list of (theta {0..6.28}, s {0..1})
     return np.concatenate(([sol.t], sol.y)).T
+
+pointer_radius = 8
+""" z Distance from pivot of pointer to projection wall, effectively inverse scale factor """
+projection_distance = 1000
+#            p   f      xy           camxy        z
+side1 = Side(20, 10, Point(5, -10), Point(20, -5), 100)
+side2 = Side(20, -10, Point(-5, -10), Point(-20, -5), 100)
