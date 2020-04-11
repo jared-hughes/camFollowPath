@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import math
-from main import side1, side2, getThetaS
+from compute import side1, side2, getThetaS
 from points import Point
 
 # https://medium.com/@francoisromain/smooth-a-svg-path-with-cubic-bezier-curves-e37b49d46c74
@@ -57,7 +57,11 @@ def format_svg(points):
 
 def gen_svg(side, filename):
     with open(filename, "w") as f:
-        f.write(format_svg([(theta, side.r(s)) for (theta, s) in getThetaS()]))
+        points = []
+        for (theta, s) in getThetaS():
+            (r, cam_angle, angle, face_pos) = side.info(s)
+            points.append((theta-cam_angle, r))
+        f.write(format_svg(points))
 
 if __name__=="__main__":
     # html for browser preview

@@ -1,3 +1,6 @@
+import math
+import numpy as np
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -13,7 +16,29 @@ class Point:
         return self+other*(-1)
 
     def __mag__(self):
-        return (self.x*self.x + self.y*self.y)**0.5
+        return np.sqrt(self.x*self.x + self.y*self.y)
+
+    def mag(self):
+        return self.__mag__()
+
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+    def angle(self):
+        return np.arctan2(self.y, self.x)
+
+    def rotated(self, angle):
+        """ clockwise angle """
+        return Point(
+            self.x*np.cos(angle) + self.y*np.sin(angle),
+            -self.x*np.sin(angle) + self.y*np.cos(angle)
+        )
+
+    def rounded(self, roundoff=0):
+        return Point(
+            round(self.x, roundoff),
+            round(self.y, roundoff)
+        )
 
 fpts = """0	90.3499984741211	133.95000076293945
 0.005	88.66094970703125	133.9009666442871
