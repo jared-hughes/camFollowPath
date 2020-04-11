@@ -6,20 +6,23 @@ import numpy as np
 from scipy import integrate
 
 class Side:
-    def __init__(self, p, f, xy, camxy, z):
+    def __init__(self, p, f, xy, camxy, z, is_flipped):
         """
         p: perpendicular distance from pivot of side to follower
-        f: length of follower (negative if clockwise)
+        f: length of follower
         camx, camy: offsets from pivot of side to center of cam
         x, y, z: offset from pivot of pointer to pivot of side
             * z should measure to the face of the side further from the pointer pivot
               since that is what the pointer touches
+        is_flipped: True if the cam is left of side pivot and side is left of pointer
         """
         self.p = p
-        self.f = f
+        # f should be negative if counterclockwise
+        self.f = abs(f) * (-1 if is_flipped else 1)
         self.camxy = camxy
         self.xy = xy
         self.z = z
+        self.is_flipped = is_flipped
 
     def info(self, s):
         """
@@ -31,7 +34,8 @@ class Side:
         face_pos -= self.xy
         # small angle: assume cross section of pointer is always circle
         # CCW angle from vertical
-        angle = face_pos.angle() - math.asin(pointer_radius/face_pos.mag())
+        angle = face_pos.angle() - \
+            (-1 if self.is_flipped else 1) * math.asin(pointer_radius/face_pos.mag())
         radius = math.sqrt(self.p**2 + self.f**2)
         # CCW angle
         side_angle = math.atan2(self.p, self.f)
@@ -74,5 +78,5 @@ pointer_radius = 8
 """ z Distance from pivot of pointer to projection wall, effectively inverse scale factor """
 projection_distance = 1000
 #            p   f      xy           camxy        z
-side1 = Side(20, 10, Point(5, -10), Point(20, -5), 100)
-side2 = Side(20, -10, Point(-5, -10), Point(-20, -5), 100)
+side1 = Side(20, 10, Point(5, -10), Point(20, -5), 100, False)
+side2 = Side(20, -10, Point(-5, -10), Point(-20, -5), 100, True)
