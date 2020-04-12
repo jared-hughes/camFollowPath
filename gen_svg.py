@@ -53,7 +53,7 @@ def format_svg(points):
     return (
         f"<svg viewbox='{-max_r} {-max_r} {2*max_r} {2*max_r}'>\n"
         f"  <path d='{format_path(points)}'/>\n"
-        f"  <circle cx=0 cy=0 r={hole_radius} fill='white'/>\n"
+        f"  <circle cx='0' cy='0' r='{hole_radius}' fill='white'/>\n"
         f"</svg>\n"
     )
 
@@ -65,11 +65,11 @@ def gen_svg(side, filename):
             points.append((theta-cam_angle, r))
         f.write(format_svg(points))
 
-hole_radius = 2
+hole_radius = 5
 
 if __name__=="__main__":
     # html for browser preview
-    # svg for import into fusion
+    # svg for import into Fusion
     gen_svg(side1, "outputs/cam1.html")
     gen_svg(side1, "outputs/cam1.svg")
     gen_svg(side2, "outputs/cam2.html")

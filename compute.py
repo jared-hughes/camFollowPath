@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from points import points, pdiff, Point
+from points import load_path, Point
 import math
 import numpy as np
 from scipy import integrate
@@ -29,7 +29,7 @@ class Side:
         returns tuple (radius of cam, angle on cam, angle from vertical, position of pointer along face)
         """
         # (x, y)
-        pos = getPoint(s)
+        pos = path.getPoint(s)
         face_pos_abs = pos * (self.z / projection_distance)
         face_pos = face_pos_abs - self.xy
         # small angle: assume cross section of pointer is always circle
@@ -44,13 +44,6 @@ class Side:
         r = cam_vector.mag()
         cam_angle = cam_vector.angle()
         return (r, cam_angle, angle, face_pos_abs)
-
-def getPoint(s):
-    """ Returns closest (x, y) source point at s """
-    s %= 1
-    i = s/pdiff
-    frac = i - int(i)
-    return points[int(i)][1] * frac + points[int(i)+1][1] * (1-frac)
 
 def d_ds(f, s):
     d = 0.00001
@@ -74,9 +67,10 @@ def getThetaS(n=50):
     # effectively list of (theta {0..6.28}, s {0..1})
     return np.concatenate(([sol.t], sol.y)).T
 
-pointer_radius = 8
-""" z Distance from pivot of pointer to projection wall, effectively inverse scale factor """
+pointer_radius = 25
+""" z Distance from pivot of pointer to projection wall; effectively inverse scale factor """
 projection_distance = 1000
 #            p   f      xy           camxy        z
-side1 = Side(20, 10, Point(5, -10), Point(20, -5), 100, False)
-side2 = Side(20, -10, Point(-5, -10), Point(-20, -5), 100, True)
+side1 = Side(80, 60, Point(5, -200), Point(170, -20), 100, False)
+side2 = Side(80, 60, Point(-5, -200), Point(-170, -20), 100, True)
+path = load_path("inputs/heart.svg", Point(64, 64), 6)

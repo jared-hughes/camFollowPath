@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from compute import getPoint, side1, side2, pointer_radius, getThetaS, Point
+from compute import side1, side2, pointer_radius, getThetaS, Point
 import numpy as np
 
 def ggb_def(name, value):
