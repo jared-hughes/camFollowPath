@@ -13,6 +13,12 @@ class Point:
     def __mul__(self, t):
         return Point(self.x*t, self.y*t)
 
+    def __rmul__(self, t):
+        return self*t
+
+    def __truediv__(self, t):
+        return Point(self.x/t, self.y/t)
+
     def __add__(self, other):
         return Point(self.x+other.x, self.y+other.y)
 

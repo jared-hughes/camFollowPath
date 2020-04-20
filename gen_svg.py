@@ -61,7 +61,7 @@ def gen_svg(side, filename):
     with open(filename, "w") as f:
         points = []
         for (theta, s) in getThetaS():
-            (r, cam_angle, angle, face_pos) = side.info(s)
+            (r, cam_angle, angle, face_pos, pos) = side.info(s)
             points.append((theta-cam_angle, r))
         f.write(format_svg(points))
 

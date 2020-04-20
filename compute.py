@@ -26,11 +26,12 @@ class Side:
 
     def info(self, s):
         """
-        returns tuple (radius of cam, angle on cam, angle from vertical, position of pointer along face)
+        returns tuple (radius of cam, angle on cam, angle from horizontal,
+            position of pointer along face, position of pointer on z=1 "wall")
         """
         # (x, y)
-        pos = path.getPoint(s)
-        face_pos_abs = pos * (self.z / projection_distance)
+        pos_norm = path.getPoint(s) / projection_distance
+        face_pos_abs = pos_norm * self.z
         face_pos = face_pos_abs - self.xy
         # small angle: assume cross section of pointer is always circle
         # CCW angle from vertical
@@ -43,7 +44,7 @@ class Side:
         cam_vector = f - self.camxy
         r = cam_vector.mag()
         cam_angle = cam_vector.angle()
-        return (r, cam_angle, angle, face_pos_abs)
+        return (r, cam_angle, angle, face_pos_abs, pos_norm)
 
 def d_ds(f, s):
     d = 0.00001

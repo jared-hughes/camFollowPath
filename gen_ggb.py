@@ -15,7 +15,7 @@ def ggb_readout(side, n):
     print("Next Side")
     positions = []
     for (theta, s) in getThetaS(n):
-        (r, cam_angle, angle, face_pos) = side.info(s)
+        (r, cam_angle, angle, face_pos, pos) = side.info(s)
         positions.append((round(theta, 3), round(r, 3), round(cam_angle, 3), round(angle, 3), face_pos.rounded(3)))
 
     # print out a single list {{theta}, {r1}, {cam_angle}, {angle}, {face_pos}, p, f, camxy, rp, xy of side pivot}
